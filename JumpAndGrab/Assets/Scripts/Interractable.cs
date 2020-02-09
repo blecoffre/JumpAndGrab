@@ -1,18 +1,19 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.Events;
 
 public class Interractable : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    [SerializeField]
+    private Collider m_collider;
 
-    // Update is called once per frame
-    void Update()
+    public UnityAction m_actionOnEnter;
+    public UnityAction m_actionOnStay;
+    public UnityAction m_actionOnExit;
+
+    private void Awake()
     {
-        
+        //If no collider, disable script to avoid error
+        if (!m_collider)
+            this.enabled = false;
     }
 }

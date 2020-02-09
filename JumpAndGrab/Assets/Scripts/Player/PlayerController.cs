@@ -6,11 +6,11 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField]
-    private Camera mainCamera;
+    private Camera mainCamera = default;
     [SerializeField]
-    private Rigidbody m_rigidbody;
+    private Rigidbody m_rigidbody = default;
 
-    private CustomInputs controls;
+    public CustomInputs controls;
 
     public float MoveSpeed = 15;
     public float RotationSpeed = 5;
@@ -18,30 +18,19 @@ public class PlayerController : MonoBehaviour
     private Vector3 movement;
 
     private Vector2 movementInput;
-    Vector2 lookPosition;
 
-    private void Awake()
+    public float JumpVelocity = 3.5f;
+    public float FallMultiplier = 5;
+    public float LowJump = 2;
+
+    private bool m_isGrounded = false;
+
+    private void Start()
     {
-        controls = new CustomInputs();
         controls.Player.Movement.performed += ctx => movementInput = ctx.ReadValue<Vector2>();
-        controls.Player.Direction.performed += ctx => lookPosition = ctx.ReadValue<Vector2>();
+        controls.Player.Jump.performed += ctx => Jump();
 
-
-    }
-
-    void Start()
-    {
-
-    }
-
-    private void OnEnable()
-    {
-        controls.Enable();
-    }
-
-    private void OnDisable()
-    {
-        controls.Disable();
+        Debug.Log("Default value : " + InputSystem.settings.defaultButtonPressPoint);
     }
 
     private void LateUpdate()
@@ -64,7 +53,8 @@ public class PlayerController : MonoBehaviour
 
         //Why not just pass the vector instead of breaking it up only to remake it on the other side?
         MoveThePlayer(desiredDirection);
-        TurnThePlayer();
+
+        JumpCheck();
     }
 
     void MoveThePlayer(Vector3 desiredDirection)
@@ -74,24 +64,40 @@ public class PlayerController : MonoBehaviour
         movement = movement * MoveSpeed * Time.deltaTime;
 
         m_rigidbody.MovePosition(transform.position + movement);
+    } 
 
+    void Jump()
+    {
+        m_rigidbody.velocity = transform.up * JumpVelocity;
     }
 
-    void TurnThePlayer()
+    void JumpCheck()
     {
-
-        // Old Input system
-        Vector2 input = lookPosition;
-
-        // Convert "input" to a Vector3 where the Y axis will be used as the Z axis
-        Vector3 lookDirection = new Vector3(input.x, 0, input.y);
-        var lookRot = mainCamera.transform.TransformDirection(lookDirection);
-        lookRot = Vector3.ProjectOnPlane(lookRot, Vector3.up);
-
-        if (lookRot != Vector3.zero)
+        if (m_rigidbody.velocity.y < 0)
         {
-            Quaternion newRotation = Quaternion.LookRotation(lookRot);
-            m_rigidbody.MoveRotation(newRotation);
+            m_rigidbody.velocity += transform.up * Physics.gravity.y * (FallMultiplier - 1) * Time.deltaTime;
+        }
+        else if (m_rigidbody.velocity.y > 0 && controls.Player.Jump.ReadValue<float>() >= InputSystem.settings.defaultButtonPressPoint)
+        {
+            m_rigidbody.velocity += transform.up * Physics.gravity.y * (LowJump - 1) * Time.deltaTime;
+        }
+
+        Debug.Log("Current Value : " + controls.Player.Jump.ReadValue<float>());
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (collision.transform.tag == "Ground")
+        {
+            m_isGrounded = true;
+        }
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        if(collision.transform.tag == "Ground")
+        {
+            m_isGrounded = false;
         }
     }
 }
