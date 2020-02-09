@@ -27,9 +27,9 @@ public class @CustomInputs : IInputActionCollection, IDisposable
                     ""interactions"": """"
                 },
                 {
-                    ""name"": ""Direction"",
-                    ""type"": ""PassThrough"",
-                    ""id"": ""e6b0062a-681c-493f-b578-1a9e470967c7"",
+                    ""name"": ""Jump"",
+                    ""type"": ""Value"",
+                    ""id"": ""6e18d2b0-3441-4558-97ea-74e6e503cd61"",
                     ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
                     ""interactions"": """"
@@ -92,59 +92,42 @@ public class @CustomInputs : IInputActionCollection, IDisposable
                     ""isPartOfComposite"": true
                 },
                 {
-                    ""name"": ""Arrows"",
-                    ""id"": ""84b1330e-509c-464b-935a-d5908872e98c"",
-                    ""path"": ""2DVector"",
+                    ""name"": """",
+                    ""id"": ""0f29c677-b1bf-425f-967f-7a5bce574878"",
+                    ""path"": ""<Keyboard>/space"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Direction"",
-                    ""isComposite"": true,
+                    ""groups"": ""Keyboard and Mouse"",
+                    ""action"": ""Jump"",
+                    ""isComposite"": false,
                     ""isPartOfComposite"": false
-                },
+                }
+            ]
+        },
+        {
+            ""name"": ""ExtraControls"",
+            ""id"": ""2d1b6775-8044-4e1f-8639-b31a451bfff7"",
+            ""actions"": [
                 {
-                    ""name"": ""up"",
-                    ""id"": ""5a338a2f-010f-4674-a156-7ab5bf97291b"",
-                    ""path"": ""<Keyboard>/upArrow"",
-                    ""interactions"": """",
+                    ""name"": ""OpenMenu"",
+                    ""type"": ""Button"",
+                    ""id"": ""34f02fa8-554a-4f41-85cf-83e61ae8b01d"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""725bdfbc-8e72-4691-a843-9a3996325073"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": ""Press"",
                     ""processors"": """",
                     ""groups"": ""Keyboard and Mouse"",
-                    ""action"": ""Direction"",
+                    ""action"": ""OpenMenu"",
                     ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""down"",
-                    ""id"": ""6be34554-0bee-4a11-805f-36db95a88471"",
-                    ""path"": ""<Keyboard>/downArrow"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Keyboard and Mouse"",
-                    ""action"": ""Direction"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""left"",
-                    ""id"": ""c644861f-dc20-4584-b52c-78d8951a8abc"",
-                    ""path"": ""<Keyboard>/leftArrow"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Keyboard and Mouse"",
-                    ""action"": ""Direction"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""right"",
-                    ""id"": ""8c812130-28f4-4e4d-8510-b8c928e9a72c"",
-                    ""path"": ""<Keyboard>/rightArrow"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Keyboard and Mouse"",
-                    ""action"": ""Direction"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -171,7 +154,10 @@ public class @CustomInputs : IInputActionCollection, IDisposable
         // Player
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Movement = m_Player.FindAction("Movement", throwIfNotFound: true);
-        m_Player_Direction = m_Player.FindAction("Direction", throwIfNotFound: true);
+        m_Player_Jump = m_Player.FindAction("Jump", throwIfNotFound: true);
+        // ExtraControls
+        m_ExtraControls = asset.FindActionMap("ExtraControls", throwIfNotFound: true);
+        m_ExtraControls_OpenMenu = m_ExtraControls.FindAction("OpenMenu", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -222,13 +208,13 @@ public class @CustomInputs : IInputActionCollection, IDisposable
     private readonly InputActionMap m_Player;
     private IPlayerActions m_PlayerActionsCallbackInterface;
     private readonly InputAction m_Player_Movement;
-    private readonly InputAction m_Player_Direction;
+    private readonly InputAction m_Player_Jump;
     public struct PlayerActions
     {
         private @CustomInputs m_Wrapper;
         public PlayerActions(@CustomInputs wrapper) { m_Wrapper = wrapper; }
         public InputAction @Movement => m_Wrapper.m_Player_Movement;
-        public InputAction @Direction => m_Wrapper.m_Player_Direction;
+        public InputAction @Jump => m_Wrapper.m_Player_Jump;
         public InputActionMap Get() { return m_Wrapper.m_Player; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -241,9 +227,9 @@ public class @CustomInputs : IInputActionCollection, IDisposable
                 @Movement.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMovement;
                 @Movement.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMovement;
                 @Movement.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnMovement;
-                @Direction.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDirection;
-                @Direction.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDirection;
-                @Direction.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnDirection;
+                @Jump.started -= m_Wrapper.m_PlayerActionsCallbackInterface.OnJump;
+                @Jump.performed -= m_Wrapper.m_PlayerActionsCallbackInterface.OnJump;
+                @Jump.canceled -= m_Wrapper.m_PlayerActionsCallbackInterface.OnJump;
             }
             m_Wrapper.m_PlayerActionsCallbackInterface = instance;
             if (instance != null)
@@ -251,13 +237,46 @@ public class @CustomInputs : IInputActionCollection, IDisposable
                 @Movement.started += instance.OnMovement;
                 @Movement.performed += instance.OnMovement;
                 @Movement.canceled += instance.OnMovement;
-                @Direction.started += instance.OnDirection;
-                @Direction.performed += instance.OnDirection;
-                @Direction.canceled += instance.OnDirection;
+                @Jump.started += instance.OnJump;
+                @Jump.performed += instance.OnJump;
+                @Jump.canceled += instance.OnJump;
             }
         }
     }
     public PlayerActions @Player => new PlayerActions(this);
+
+    // ExtraControls
+    private readonly InputActionMap m_ExtraControls;
+    private IExtraControlsActions m_ExtraControlsActionsCallbackInterface;
+    private readonly InputAction m_ExtraControls_OpenMenu;
+    public struct ExtraControlsActions
+    {
+        private @CustomInputs m_Wrapper;
+        public ExtraControlsActions(@CustomInputs wrapper) { m_Wrapper = wrapper; }
+        public InputAction @OpenMenu => m_Wrapper.m_ExtraControls_OpenMenu;
+        public InputActionMap Get() { return m_Wrapper.m_ExtraControls; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(ExtraControlsActions set) { return set.Get(); }
+        public void SetCallbacks(IExtraControlsActions instance)
+        {
+            if (m_Wrapper.m_ExtraControlsActionsCallbackInterface != null)
+            {
+                @OpenMenu.started -= m_Wrapper.m_ExtraControlsActionsCallbackInterface.OnOpenMenu;
+                @OpenMenu.performed -= m_Wrapper.m_ExtraControlsActionsCallbackInterface.OnOpenMenu;
+                @OpenMenu.canceled -= m_Wrapper.m_ExtraControlsActionsCallbackInterface.OnOpenMenu;
+            }
+            m_Wrapper.m_ExtraControlsActionsCallbackInterface = instance;
+            if (instance != null)
+            {
+                @OpenMenu.started += instance.OnOpenMenu;
+                @OpenMenu.performed += instance.OnOpenMenu;
+                @OpenMenu.canceled += instance.OnOpenMenu;
+            }
+        }
+    }
+    public ExtraControlsActions @ExtraControls => new ExtraControlsActions(this);
     private int m_KeyboardandMouseSchemeIndex = -1;
     public InputControlScheme KeyboardandMouseScheme
     {
@@ -270,6 +289,10 @@ public class @CustomInputs : IInputActionCollection, IDisposable
     public interface IPlayerActions
     {
         void OnMovement(InputAction.CallbackContext context);
-        void OnDirection(InputAction.CallbackContext context);
+        void OnJump(InputAction.CallbackContext context);
+    }
+    public interface IExtraControlsActions
+    {
+        void OnOpenMenu(InputAction.CallbackContext context);
     }
 }
