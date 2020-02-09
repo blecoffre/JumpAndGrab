@@ -9,6 +9,7 @@
 /JumpAndGrab/[Bb]uilds/
 /JumpAndGrab/[Ll]ogs/
 /JumpAndGrab/[Mm]emoryCaptures/
+/JumpAndGrab/Assets/[Ss]amples/
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !/JumpAndGrab/[Aa]ssets/**/*.meta
