@@ -1,9 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public static class ConditionSystemManager
 {
+    
+    public static void Initialize()
+    {
+
+    }
+
     /// <summary>
     /// Check if all conditions are met to perform an action
     /// </summary>
@@ -15,15 +19,17 @@ public static class ConditionSystemManager
     {
         if (CheckConditionsAreValid(conditions))
         {
-            if (first != null)
+            if (first != null && (RequiredSecondObject(conditions) == (second != null ? true : false)))
             {
-                if (RequiredSecondObject(conditions) && second != null)
-                {
-
-                }
                 for (int i = 0; i < conditions.Length; i++)
                 {
-
+                    if (conditions[i].ConditionType == ConditionType.HasTag)
+                    {
+                        if (!CheckTagCondition(conditions[i], second))
+                        {
+                            return false;
+                        }
+                    }
                 }
             }
             else
@@ -35,7 +41,7 @@ public static class ConditionSystemManager
         {
             Debug.LogError("Condition(s) are not valid");
         }
-        return false;
+        return true;
     }
 
     private static bool CheckConditionsAreValid(Condition[] conditions)
@@ -70,13 +76,13 @@ public static class ConditionSystemManager
                         }
                         else
                         {
-                            Debug.LogError("Condition Value is invalid " + conditions[i].ConditionValue);
+                            Debug.LogError("Condition Value is invalid : " + conditions[i].ConditionValue);
                             break;
                         }
                     }
                     else
                     {
-                        Debug.LogError("Condition Type is invalid " + conditions[i].ConditionType);
+                        Debug.LogError("Condition Type is invalid : " + conditions[i].ConditionType);
                         break;
                     }
                 }
@@ -157,4 +163,16 @@ public static class ConditionSystemManager
         
         return false;
     }
+
+    private static bool CheckTagCondition(Condition condition, GameObject second)
+    {
+        if (condition.ConditionType == ConditionType.HasTag && (condition.ConditionTarget == ConditionTarget.Target || condition.ConditionTarget == ConditionTarget.Specific) && second.tag == condition.ConditionValue)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+
 }

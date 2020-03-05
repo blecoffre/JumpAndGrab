@@ -1,11 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Events;
 
 public static class NullCheckExtension
 {
-    public static void InvokeIfNotNull(this UnityAction action)
+    public static void InvokeIfNotNull(this UnityEvent action)
     {
         if (action != null)
             action.Invoke();
